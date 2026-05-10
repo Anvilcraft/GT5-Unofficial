@@ -6,7 +6,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.GT_Values;
 import gregtech.api.items.GT_Generic_Item;
-import ic2.core.util.LiquidUtil;
+import gregtech.util.LiquidUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -27,7 +27,7 @@ import net.minecraftforge.fluids.*;
 import java.util.List;
 
 import static gregtech.api.enums.GT_Values.RES_PATH_ITEM;
-import static ic2.core.util.LiquidUtil.*;
+import static gregtech.util.LiquidUtil.*;
 
 
 public class GT_VolumetricFlask extends GT_Generic_Item implements IFluidContainerItem {
