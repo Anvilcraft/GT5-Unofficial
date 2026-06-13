@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import cpw.mods.fml.common.registry.GameRegistry;
+
 import static gregtech.api.enums.GT_Values.*;
 
 /**
@@ -38,10 +40,17 @@ public class GT_OreDictUnificator {
     public static volatile int VERSION = 509;
     private static int isRegisteringOre = 0, isAddingOre = 0;
     private static boolean mRunThroughTheList = true;
+    public static Map<String, Integer> unificationPriorityMods = new HashMap<>();
 
     static {
         GregTech_API.sItemStackMappings.add(sItemStack2DataMap);
         GregTech_API.sItemStackMappings.add(sUnificationTable);
+    }
+
+    public static void addModPriorities(String[] modIds) {
+        for (int i = 0; i < modIds.length; i++) {
+            unificationPriorityMods.put(modIds[i], i);
+        }
     }
 
     /**
@@ -72,7 +81,21 @@ public class GT_OreDictUnificator {
         aStack = GT_Utility.copyAmount(1, aStack);
         if (!aAlreadyRegistered) registerOre(aPrefix.get(aMaterial), aStack);
         addAssociation(aPrefix, aMaterial, aStack, isBlacklisted(aStack));
-        if (aOverwrite || GT_Utility.isStackInvalid(sName2StackMap.get(aPrefix.get(aMaterial).toString())))
+        ItemStack current = sName2StackMap.get(aPrefix.get(aMaterial).toString());
+        if (current != null) {
+            String oldModId = GameRegistry.findUniqueIdentifierFor(current.getItem()).modId;
+            String newModId = GameRegistry.findUniqueIdentifierFor(aStack.getItem()).modId;
+            if (unificationPriorityMods.containsKey(newModId) && !unificationPriorityMods.containsKey(oldModId)) {
+                aOverwrite = true;
+            } else if (unificationPriorityMods.containsKey(newModId) 
+                && unificationPriorityMods.containsKey(oldModId) 
+                && unificationPriorityMods.get(newModId) < unificationPriorityMods.get(oldModId)) {
+                aOverwrite = true;
+            } else if (unificationPriorityMods.containsKey(oldModId)) {
+                aOverwrite = false;
+            }
+        }
+        if (aOverwrite || GT_Utility.isStackInvalid(current))
             sName2StackMap.put(aPrefix.get(aMaterial).toString(), aStack);
         isAddingOre--;
     }
